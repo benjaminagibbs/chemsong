@@ -1,8 +1,5 @@
+flask
+markdown2
+mido
 pandas
-rdkit
-numpy
-loguru
-pygame
-pillow
-pyo
-pytest
+pyo 

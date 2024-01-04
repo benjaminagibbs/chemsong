@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Chemsong</title>
+    <style>
+        /* Add your CSS styling here */
+        body { font-family: Arial, sans-serif; }
+        .container { width: 80%; margin: auto; }
+        .header { text-align: center; }
+        .form-group { margin-bottom: 15px; }
+        .image-container { text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>CHEMSONG</h1>
+            <img src="/static/images/chemsong.png" alt="Chemsong Image" style="width: 250px;"/>
+        </div>
+
+        <div>
+            <label>Select musical scale:</label>
+            <select name="musical_scale">
+                {% for scale in scale_list %}
+                <option value="{{ scale }}">{{ scale }}</option>
+                {% endfor %}
+            </select>
+            
+        </div>
+
+        <div>
+            <p>Enter SMILES notation for each step, separate molecules with a space:</p>
+            <form action="/process" method="post">
+                <div class="form-group">
+                    <input type="text" name="smiles_entry_1" style="width: 250px;" />
+                </div>
+                <!-- More input fields can be dynamically added here -->
+                <button type="submit">Process</button>
+            </form>
+        </div>
+
+        <div>
+            <button onclick="location.href='/add_step'">Add Step</button>
+            <button onclick="location.href='/generate_random_step'">Generate Random Step</button>
+            <button onclick="location.href='/play_music'">Play Music</button>
+            <button onclick="location.href='/reset'">Reset</button>
+        </div>
+
+        <div class="image-container">
+            <!-- Images will be displayed here -->
+        </div>
+
+        <div>
+            <!--- add vertical space-->
+            <br>
+            <br>
+
+            <a href="{{ url_for('smiles_guide') }}">SMILES Notation Guide</a>
+        </div>
+    </div>
+
+</body>
+</html>
