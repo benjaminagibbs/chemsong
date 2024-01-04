@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for
-import markdown2
 
 from process import *
-from util.scale_reference import scale_list
+from app.static.reference.scale_reference import scale_list
 
 
 app = Flask(__name__)

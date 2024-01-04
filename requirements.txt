@@ -1,5 +1,7 @@
 flask
-markdown2
+loguru
 mido
 pandas
+# pillow
 pyo 
+rdkit
