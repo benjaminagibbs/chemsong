@@ -4,8 +4,8 @@ import mido
 import pandas as pd
 import pyo
 
-from app.static.reference.bond_energies import bond_energies
-from app.static.reference.scale_reference import *
+from static.reference.bond_energies import bond_energies
+from static.reference.scale_reference import *
 
 # Initialize Pyo server
 s = pyo.Server().boot()
