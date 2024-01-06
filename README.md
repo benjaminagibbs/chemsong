@@ -1,6 +1,6 @@
 # Chemsong V0.2
 
-![Chemsong Window](img/chemsong_window.png)
+![Chemsong Window](app/static/imgage/chemsong_window.png)
 
 ## Overview
 
@@ -45,7 +45,7 @@ The bond energies are transcribed from source: Data from J. E. Huheey, E. A. Kei
 
 Bond energy values are output using loguru in the command line, example:
 
-![Chemsong Command Line Output](img/chemsong_cmd_output.png)
+![Chemsong Command Line Output](app/static/imgage/chemsong_cmd_output.png)
 
 ## Testing:
 To run the existing (unit) tests, make sure pytest is installed then run:
@@ -63,7 +63,7 @@ To run the existing (unit) tests, make sure pytest is installed then run:
 Contributions are highly encouraged, whether it's through enhancing audio mappings, improving visualizations, or introducing new features.
 
 ### Thanks to the following contributors for helping in early dev:
-- Matt Fries: [moonpapasart.com](moonpapasart.com)
+- Matt Fries: [moonpapasart.com](https://www.moonpapasart.com)
 
 
 ## License
