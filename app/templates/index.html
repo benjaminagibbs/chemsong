@@ -63,6 +63,10 @@
         </div>
     </div>
 
+    <div id="logArea" style="position: fixed; bottom: 0; width: 100%; height: 200px; overflow: scroll;">
+        <!-- Logs will be displayed here -->
+    </div>
+
     <script type="text/javascript">
         var stepCount = 1;
 
@@ -114,6 +118,17 @@
 
             });
         });
+        function fetchLogs() {
+            fetch('/get-logs')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('logArea').innerText = data.logs;
+                })
+                .catch(error => console.error('Error fetching logs:', error));
+        }
+
+        // Fetch logs every 5 seconds
+        setInterval(fetchLogs, 5000);
     </script>
 </body>
 </html>

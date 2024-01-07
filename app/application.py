@@ -1,12 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, jsonify
 
 from loguru import logger
+import io
 
 from process import *
 from static.reference.scale_reference import scale_list
 
 
 app = Flask(__name__)
+log_stream = io.StringIO()
+
+# Configure Loguru to write to log_stream
+logger.add(log_stream, format="{time} {level} {message}")
+
+@app.route('/get-logs')
+def get_logs():
+    # Return the logs as JSON
+    return jsonify(logs=log_stream.getvalue())
+
 
 @app.route('/', methods=['GET', 'POST'])
 def index():

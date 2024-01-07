@@ -15,7 +15,7 @@ def render_smiles(smiles_list):
 
     # Adjust subImgSize to fit aspect ratio
     img = Draw.MolsToGridImage(
-        mol_list, molsPerRow=4, subImgSize=(200, 200), useSVG=False
+        mol_list, molsPerRow=4, subImgSize=(100, 50), useSVG=False
     )
 
     img_byte_arr = io.BytesIO()
