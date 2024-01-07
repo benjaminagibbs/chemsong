@@ -1,7 +1,7 @@
 import pandas as pd
 from loguru import logger
 
-from util.bond_energies import bond_energies, list_bonds
+from static.reference.bond_energies import bond_energies, list_bonds
 
 
 def molecules_to_bond_energy_df(mols):

@@ -4,8 +4,8 @@ import mido
 import pandas as pd
 import pyo
 
-from util.bond_energies import bond_energies
-from util.scale_reference import *
+from static.reference.bond_energies import bond_energies
+from static.reference.scale_reference import *
 
 # Initialize Pyo server
 s = pyo.Server().boot()
@@ -43,7 +43,7 @@ def map_to_scale(note: int) -> int:
     scale = a_minor()
 
     # get dropdown value from where it's written:
-    with open("util/dropdown_value.txt", "r") as f:
+    with open("app/static/reference/dropdown_value.txt", "r") as f:
         scale_selection = f.read()
         f.close()
 

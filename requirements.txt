@@ -1,8 +1,7 @@
-pandas
-rdkit
-numpy
+flask
 loguru
-pygame
-pillow
-pyo
-pytest
+mido
+pandas
+# pillow
+pyo 
+rdkit
