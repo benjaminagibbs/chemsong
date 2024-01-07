@@ -8,7 +8,10 @@
         .container { width: 80%; margin: auto; }
         .header { text-align: center; }
         .form-group { margin-bottom: 15px; }
-        .image-container { text-align: center; }
+        .image-container img {
+            width: auto;
+            height: auto;
+        }
     </style>
 </head>
 <body>
@@ -18,7 +21,7 @@
             <img src="/static/images/chemsong.png" alt="Chemsong Image" style="width: 250px;"/>
         </div>
 
-        <form action="/process" method="post">
+        <form id="processForm" action="/process" method="post">
             <div>
                 <label>Select musical scale:</label>
                 <select name="musical_scale">
@@ -32,22 +35,20 @@
                 <p>Enter SMILES notation for each step, separate molecules with a space:</p>
             </div>
 
-            <div class="form-group">
-                <input type="text" name="smiles_entry_1" style="width: 250px;" />
-            </div>
-            <!-- Additional input fields will be dynamically added here -->
-
-            <div class="button-group">
+            <div class="button-group_1">
                 <button type="button" onclick="addStep()">Add Step</button>
                 <button type="button" onclick="addRandomStep()">Add Random Step</button>
                 <button type="button" onclick="resetForm()">Reset</button>
             </div>
             
             <div class="button_group_2">
-                <button type="submit">Process</button>
-                <button type="button" onclick="playMusic()">Play Music</button>
-                <button type="button" onclick="exportMidi()">Export Midi</button>
+                <button type="submit" onclick="process()">Process</button>
             </div>
+
+            <div class="form-group">
+                <!-- Additional input fields will be dynamically added here -->
+            </div>
+
         </form>
 
         <div class="image-container">
@@ -74,12 +75,45 @@
         }
 
         function addRandomStep() {
-            // Implement the logic for adding a random step
+            fetch('/generate_random_step')
+                .then(response => response.json())
+                .then(randomStep => {
+                    stepCount++;
+                    var inputDiv = document.createElement('div');
+                    inputDiv.className = 'form-group';
+                    inputDiv.innerHTML = '<input type="text" name="smiles_entry_' + stepCount + '" style="width: 250px;" value="' + randomStep + '" />';
+                    document.querySelector('form').appendChild(inputDiv);
+                })
+                .catch(error => console.error('Error:', error));
         }
 
         function resetForm() {
-            window.location.reload();
-        }
+                window.location.reload();
+            }
+            document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('processForm').addEventListener('submit', function(e) {
+                e.preventDefault(); // Prevents default form submission
+
+                var formData = new FormData(this);
+
+                fetch('/process', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.images) {
+                        data.images.forEach(encodedImg => {
+                            var img = new Image(200, 200);
+                            img.src = 'data:image/png;base64,' + encodedImg;
+                            document.querySelector('.image-container').appendChild(img);
+                        });
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+
+            });
+        });
     </script>
 </body>
 </html>
