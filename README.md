@@ -1,6 +1,6 @@
 # Chemsong Web Application
 
-![Chemsong Window](app/static/images/chemsong_window.png)
+![Chemsong Window](static/images/chemsong_window.png)
 
 ## Overview
 
@@ -19,7 +19,7 @@ To set up the Chemsong web application on your local machine, follow these steps
 2. Install the required dependencies:
 `pip install -r requirements.txt`
 3. Run the application:
-python app/application.py
+python application.py
 
 ## Usage(local)
 1. Navigate to `localhost:5000` in your web browser.
@@ -38,7 +38,7 @@ The bond energies are transcribed from source: Data from J. E. Huheey, E. A. Kei
 
 Bond energy values are output using loguru in the command line, example:
 
-![Chemsong Command Line Output](app/static/images/chemsong_cmd_output.png)
+![Chemsong Command Line Output](static/images/chemsong_cmd_output.png)
 
 ## Current known errors:
 - .png images not properly rendered, only first molecule in sequence showing
