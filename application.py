@@ -7,23 +7,23 @@ from process import *
 from static.reference.scale_reference import scale_list
 
 
-app = Flask(__name__)
+application = Flask(__name__)
 log_stream = io.StringIO()
 
 # Configure Loguru to write to log_stream
 logger.add(log_stream, format="{time} {level} {message}")
 
-@app.route('/get-logs')
+@application.route('/get-logs')
 def get_logs():
     # Return the logs as JSON
     return jsonify(logs=log_stream.getvalue())
 
 
-@app.route('/', methods=['GET', 'POST'])
+@application.route('/', methods=['GET', 'POST'])
 def index():
     return render_template('index.html', scale_list=scale_list)
 
-@app.route('/process', methods=['POST'])
+@application.route('/process', methods=['POST'])
 def process():
     if request.method == 'POST':
         musical_scale = request.form['musical_scale']
@@ -41,14 +41,14 @@ def process():
     return jsonify({'result': 'error', 'message': 'Invalid request method'})
 
 
-@app.route('/generate_random_step')
+@application.route('/generate_random_step')
 def generate_random_step():
     random_step = random_step_value()
     return jsonify(random_step)
 
-@app.route('/smiles-guide')
+@application.route('/smiles-guide')
 def smiles_guide():
     return render_template('smiles_guide.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    application.run(debug=True)
