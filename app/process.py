@@ -40,7 +40,7 @@ def process_reaction(entries):
     mols = {}
     for i, entry in enumerate(entries):
         step = i + 1
-        smiles = entry.get()
+        smiles = entry
         if not verify_smiles(smiles):
             messagebox.showerror("Error", f"Invalid SMILES notation at step {step}")
             return
@@ -80,10 +80,3 @@ def generate_random_step():
 def reset():
     pass
     # reset the flask application
-
-
-# def on_scale_select(event):
-#     scale = scale_var.get()
-#     with open("util/dropdown_value.txt", "w") as f:
-#         f.write(scale)
-#         f.close()

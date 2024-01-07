@@ -43,7 +43,7 @@ def map_to_scale(note: int) -> int:
     scale = a_minor()
 
     # get dropdown value from where it's written:
-    with open("util/dropdown_value.txt", "r") as f:
+    with open("app/util/dropdown_value.txt", "r") as f:
         scale_selection = f.read()
         f.close()
 
