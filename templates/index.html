@@ -129,6 +129,59 @@
 
         // Fetch logs every 5 seconds
         setInterval(fetchLogs, 5000);
+
+        function midiNoteToFrequency(note) {
+            return Math.pow(2, (note - 69) / 12) * 440;
+        }
+
+        function playSquareWave(frequency, duration = 0.5) {
+            const audioContext = new AudioContext();
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+            oscillator.connect(audioContext.destination);
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+        document.getElementById('processForm').addEventListener('submit', function(e) {
+            e.preventDefault(); // Prevents default form submission
+
+            var formData = new FormData(this);
+
+            fetch('/process', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.images) {
+                    data.images.forEach(encodedImg => {
+                        var img = new Image(200, 200);
+                        img.src = 'data:image/png;base64,' + encodedImg;
+                        document.querySelector('.image-container').appendChild(img);
+                    });
+                }
+
+                // Handle MIDI notes for audio playback
+                if (data.midiNotes) {
+                    let totalTime = 0;
+                    data.midiNotes.forEach(noteData => {
+                        if (noteData.note_on !== undefined) {
+                            setTimeout(() => {
+                                const frequency = midiNoteToFrequency(noteData.note_on);
+                                playSquareWave(frequency, noteData.time / 1000); // Convert time to seconds
+                            }, totalTime);
+                            totalTime += noteData.time; // Increment total time by the note duration
+                        }
+                    });
+                }
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    });
     </script>
 </body>
 </html>

@@ -17,6 +17,7 @@ def chemsong(mols):
 
     # play notes
     notes = df_to_notes(bond_df)
+    logger.info(f"Notes mapped: {notes}")
     return notes
 
 
@@ -30,7 +31,8 @@ def process_reaction(entries):
             return
         # Split the smiles string into a list and assign to the step
         mols[step] = smiles.split()
-    chemsong(mols)
+    notes = chemsong(mols)
+    return notes
 
 
 # Function to add a random step with 1-3 small chemicals
