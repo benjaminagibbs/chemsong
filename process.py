@@ -12,26 +12,12 @@ def chemsong(mols):
     bond_df = molecules_to_bond_energy_df(mols)
 
     # visualize steps and display in window
-    image_labels = []  # List to store image labels
     for step, smiles in mols.items():
         img = render_smiles(smiles)
 
     # play notes
-    df_to_notes(bond_df)
-
-
-def play_notes(entries):
-    mols = {}
-    for i, entry in enumerate(entries):
-        step = i + 1
-        smiles = entry.get()
-        if not verify_smiles(smiles):
-            logger.error(f"Invalid SMILES notation at step {step}")
-            return
-        # Split the smiles string into a list and assign to the step
-        mols[step] = smiles.split()
-        bond_df = molecules_to_bond_energy_df(mols)
-        df_to_notes(bond_df)
+    notes = df_to_notes(bond_df)
+    return notes
 
 
 def process_reaction(entries):
@@ -48,8 +34,6 @@ def process_reaction(entries):
 
 
 # Function to add a random step with 1-3 small chemicals
-# NOTE: WIP
-# TODO: develop function
 def random_step_value():
     random_chemicals = []  # Extend list as needed
     random_step = ""

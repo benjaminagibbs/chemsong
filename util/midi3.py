@@ -1,15 +1,13 @@
 import time
 
 import mido
+
+# import pyo
 import pandas as pd
-import pyo
+
 
 from static.reference.bond_energies import bond_energies
 from static.reference.scale_reference import *
-
-# Initialize Pyo server
-s = pyo.Server().boot()
-s.start()
 
 
 # Data Processing Function
@@ -61,20 +59,20 @@ def map_to_scale(note: int) -> int:
     return scale[note % len(scale)]
 
 
-# Synthesize Sine Wave with Reverb
-# play with this function to get the sound you want
-def synthesize_sound(midi_note: mido.Message):
-    freq = midi_to_frequency(midi_note.note)
-    osc = pyo.Sine(freq, mul=0.5).out()
-    reverb = pyo.Freeverb(osc, size=0.5, damp=0.5, bal=0.3).out()
+# # Synthesize Sine Wave with Reverb
+# # play with this function to get the sound you want
+# def synthesize_sound(midi_note: mido.Message):
+#     freq = midi_to_frequency(midi_note.note)
+#     osc = pyo.Sine(freq, mul=0.5).out()
+#     reverb = pyo.Freeverb(osc, size=0.5, damp=0.5, bal=0.3).out()
 
-    # Play the note for a specific duration, then stop
-    play_duration = 0.25  # Duration in seconds
-    time.sleep(play_duration)
+#     # Play the note for a specific duration, then stop
+#     play_duration = 0.25  # Duration in seconds
+#     time.sleep(play_duration)
 
-    # Stop the sound
-    osc.stop()
-    reverb.stop()
+#     # Stop the sound
+#     osc.stop()
+#     reverb.stop()
 
 
 # Main synth function
@@ -86,6 +84,4 @@ def df_to_notes(df: pd.DataFrame):
     for step in normalized_dataframe["Energy Index"]:
         time.sleep(0.25)  # delay between steps
         midi_messages = generate_midi(step)
-        for note in midi_messages:
-            # Send MIDI messages to the synthesizer
-            synthesize_sound(note)
+    return midi_messages
