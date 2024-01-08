@@ -21,6 +21,9 @@ To set up the Chemsong web application on your local machine, follow these steps
 3. Run the application:
 python application.py
 
+note: production env will use gunicorn, ex:
+`gunicorn -w 4 -b 0.0.0.0:8000 application:application`
+
 ## Usage(local)
 1. Navigate to `localhost:5000` in your web browser.
 2. Enter the SMILES notation for the desired chemical reaction or select 'generate random step'
