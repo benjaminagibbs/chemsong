@@ -7,7 +7,7 @@ from process import *
 from static.reference.scale_reference import scale_list
 
 
-application = Flask(__name__)
+application = app = Flask(__name__)
 log_stream = io.StringIO()
 
 # Configure Loguru to write to log_stream
