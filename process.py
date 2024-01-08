@@ -11,11 +11,10 @@ def chemsong(mols):
     # get bond energies from mols
     bond_df = molecules_to_bond_energy_df(mols)
 
-    # visualize steps and display in Tkinter window
+    # visualize steps and display in window
     image_labels = []  # List to store image labels
     for step, smiles in mols.items():
         img = render_smiles(smiles)
-        
 
     # play notes
     df_to_notes(bond_df)
@@ -52,7 +51,6 @@ def process_reaction(entries):
 # NOTE: WIP
 # TODO: develop function
 def random_step_value():
-
     random_chemicals = []  # Extend list as needed
     random_step = ""
     chemletters = ["C", "N", "O", "F", "S", "I", "c1ccccc1", "c1ccncc1"]

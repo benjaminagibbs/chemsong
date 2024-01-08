@@ -5,7 +5,6 @@ from static.reference.bond_energies import bond_energies, list_bonds
 
 
 def molecules_to_bond_energy_df(mols):
-
     step_bond_energies = {}  # Dictionary to store bond energies for each step
 
     for stepnum in mols:

@@ -11,9 +11,9 @@ from static.reference.scale_reference import *
 s = pyo.Server().boot()
 s.start()
 
+
 # Data Processing Function
 def normalize_data(bond_df: pd.DataFrame) -> pd.DataFrame:
-
     sorted_bond_energies = sorted(set(bond_energies.values()))
 
     # normalize energies for midi mapping
@@ -38,7 +38,7 @@ def generate_midi(data: list[int]) -> list[mido.Message]:
 
 # Map Numbers to C Minor Scale
 def map_to_scale(note: int) -> int:
-    # Mapping the number to a note in scale selected by tkinter dropdown
+    # Mapping the number to a note in scale selected by dropdown
 
     scale = a_minor()
 
