@@ -60,9 +60,9 @@ def map_to_scale(note: int) -> int:
 # Main synth function
 def df_to_notes(df: pd.DataFrame):
     normalized_dataframe = normalize_data(df)
-
+    midi_data = []
     for step in normalized_dataframe["Energy Index"]:
         time.sleep(0.25)
-        midi_data = generate_midi(step)
+        midi_data.append(generate_midi(step))
     
     return midi_data

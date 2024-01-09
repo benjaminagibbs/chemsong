@@ -17,7 +17,6 @@ def chemsong(mols):
 
     # play notes
     notes = df_to_notes(bond_df)
-    logger.info(f"Notes mapped: {notes}")
     return notes
 
 
