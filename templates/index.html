@@ -3,14 +3,70 @@
 <head>
     <title>Chemsong</title>
     <style>
-        /* Add your CSS styling here */
-        body { font-family: Arial, sans-serif; }
-        .container { width: 80%; margin: auto; }
-        .header { text-align: center; }
-        .form-group { margin-bottom: 15px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #121212; /* Dark background */
+            color: #fff; /* Light text color */
+        }
+        .container { 
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #1e1e1e; /* Slightly lighter dark background */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px;
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
         .image-container img {
-            width: auto;
+            width: 100%;
             height: auto;
+            margin-top: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff; /* Button background */
+            color: white; /* Button text color */
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #333; /* Darker border */
+            background-color: #2a2a2a; /* Dark input background */
+            color: white; /* Light input text color */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -35,7 +91,10 @@
             </div>
 
             <div>
-                <p>Enter SMILES notation for each step, separate molecules with a space:</p>
+                <p>Enter SMILES notation for each step, separate molecules with a space.
+                    Alternately, smash 'random step' a bunch then hit process.
+                    Also, only one molecule per step is rendering atm, my bad
+                </p>
             </div>
 
             <div class="button-group_1">
@@ -182,7 +241,7 @@
                 console.error('Invalid note value:', note);
                 return null;
             }
-            return Math.pow(2, (note - 69) / 12) * 440 + 30;
+            return Math.pow(2, (note - 69) / 12) * 440 + 25;
         }
 
         function playSquareWave(frequency, duration = 0.5) {
