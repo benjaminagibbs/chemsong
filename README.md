@@ -52,6 +52,7 @@ Contributions are highly encouraged, whether it's through enhancing audio mappin
 
 ### Thanks to the following contributors for helping in early dev:
 - Matt Fries: [moonpapasart.com](https://www.moonpapasart.com)
+- Credit to Soundwoofer where I found this cool [reverb](https://soundwoofer.com/Component/Component/70af1a19-74dd-4e84-a9a8-b1147defa1c1)
 
 
 ## License

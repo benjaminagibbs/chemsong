@@ -35,12 +35,12 @@ def process():
         logger.info(f"Musical Scale: {musical_scale}")
         logger.info(f"SMILES Entries: {smiles_entries}")
 
-        # Process the reactions (assuming this function works correctly)
-        process_reaction(smiles_entries)
+        midi_messages = process_reaction(smiles_entries)
+        logger.info(f"MIDI Messages: {midi_messages}")
 
         # Generate images
         images = [render_smiles([smile]) for smile in smiles_entries]
-        return jsonify({"result": "success", "data": smiles_entries, "images": images})
+        return jsonify({"result": "success", "data": smiles_entries, "images": images, "midiNotes": midi_messages})
     return jsonify({"result": "error", "message": "Invalid request method"})
 
 

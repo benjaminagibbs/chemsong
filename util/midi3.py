@@ -1,15 +1,10 @@
 import time
-
-import mido
+from loguru import logger
 import pandas as pd
-import pyo
+
 
 from static.reference.bond_energies import bond_energies
 from static.reference.scale_reference import *
-
-# Initialize Pyo server
-s = pyo.Server().boot()
-s.start()
 
 
 # Data Processing Function
@@ -27,13 +22,13 @@ def normalize_data(bond_df: pd.DataFrame) -> pd.DataFrame:
 
 
 # MIDI Generation Function
-def generate_midi(data: list[int]) -> list[mido.Message]:
-    midi_messages = []
+def generate_midi(data: list[int]) -> list[dict]:
+    midi_data = []
     for value in data:
         note = map_to_scale(value)
-        midi_messages.append(mido.Message("note_on", note=note, velocity=64, time=0))
-        midi_messages.append(mido.Message("note_off", note=note, velocity=64, time=500))
-    return midi_messages
+        midi_data.append({"note_on": note, "velocity": 64, "time": 0})
+        midi_data.append({"note_off": note, "velocity": 64, "time": 500})
+    return midi_data
 
 
 # Map Numbers to C Minor Scale
@@ -61,31 +56,13 @@ def map_to_scale(note: int) -> int:
     return scale[note % len(scale)]
 
 
-# Synthesize Sine Wave with Reverb
-# play with this function to get the sound you want
-def synthesize_sound(midi_note: mido.Message):
-    freq = midi_to_frequency(midi_note.note)
-    osc = pyo.Sine(freq, mul=0.5).out()
-    reverb = pyo.Freeverb(osc, size=0.5, damp=0.5, bal=0.3).out()
-
-    # Play the note for a specific duration, then stop
-    play_duration = 0.25  # Duration in seconds
-    time.sleep(play_duration)
-
-    # Stop the sound
-    osc.stop()
-    reverb.stop()
-
 
 # Main synth function
 def df_to_notes(df: pd.DataFrame):
-    # normalize data
     normalized_dataframe = normalize_data(df)
-
-    # play all notes in dataframe, iterating through steps
+    midi_data = []
     for step in normalized_dataframe["Energy Index"]:
-        time.sleep(0.25)  # delay between steps
-        midi_messages = generate_midi(step)
-        for note in midi_messages:
-            # Send MIDI messages to the synthesizer
-            synthesize_sound(note)
+        time.sleep(0.25)
+        midi_data.append(generate_midi(step))
+    
+    return midi_data

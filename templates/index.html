@@ -3,14 +3,70 @@
 <head>
     <title>Chemsong</title>
     <style>
-        /* Add your CSS styling here */
-        body { font-family: Arial, sans-serif; }
-        .container { width: 80%; margin: auto; }
-        .header { text-align: center; }
-        .form-group { margin-bottom: 15px; }
+        body { 
+            font-family: Arial, sans-serif; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #121212; /* Dark background */
+            color: #fff; /* Light text color */
+        }
+        .container { 
+            width: 90%;
+            max-width: 600px;
+            margin: auto;
+            padding: 20px;
+            background-color: #1e1e1e; /* Slightly lighter dark background */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px;
+        }
+        .form-group { 
+            margin-bottom: 15px; 
+        }
         .image-container img {
-            width: auto;
+            width: 100%;
             height: auto;
+            margin-top: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff; /* Button background */
+            color: white; /* Button text color */
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        select, input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 4px;
+            border: 1px solid #333; /* Darker border */
+            background-color: #2a2a2a; /* Dark input background */
+            color: white; /* Light input text color */
+        }
+
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .header h1 {
+                font-size: 24px;
+            }
+            .form-group {
+                margin-bottom: 10px;
+            }
         }
     </style>
 </head>
@@ -18,21 +74,27 @@
     <div class="container">
         <div class="header">
             <h1>CHEMSONG</h1>
-            <img src="/static/images/chemsong.png" alt="Chemsong Image" style="width: 250px;"/>
+            <img src="/static/images/chemsong.png" alt="Chemsong Image" style="width: 250px;">
         </div>
 
         <form id="processForm" action="/process" method="post">
             <div>
                 <label>Select musical scale:</label>
                 <select name="musical_scale">
-                    {% for scale in scale_list %}
-                    <option value="{{ scale }}">{{ scale }}</option>
-                    {% endfor %}
+                    <!-- Options for musical scales -->
+                    <option value="a_minor">a_minor</option>
+                    <option value="a_major">a_major</option>
+                    <option value="a_minor_h">a_minor_h</option>
+                    <option value="b_minor">b_minor</option>
+                    <option value="b_major">b_major</option>
                 </select>
             </div>
 
             <div>
-                <p>Enter SMILES notation for each step, separate molecules with a space:</p>
+                <p>Enter SMILES notation for each step, separate molecules with a space.
+                    Alternately, smash 'random step' a bunch then hit process.
+                    Also, only one molecule per step is rendering atm, my bad
+                </p>
             </div>
 
             <div class="button-group_1">
@@ -42,13 +104,12 @@
             </div>
             
             <div class="button_group_2">
-                <button type="submit" onclick="process()">Process</button>
+                <button type="submit">Process</button>
             </div>
 
             <div class="form-group">
                 <!-- Additional input fields will be dynamically added here -->
             </div>
-
         </form>
 
         <div class="image-container">
@@ -58,8 +119,7 @@
         <div>
             <!-- Add vertical space -->
             <br><br>
-
-            <a href="{{ url_for('smiles_guide') }}">SMILES Notation Guide</a>
+            <a href="/smiles-guide">SMILES Notation Guide</a>
         </div>
     </div>
 
@@ -69,6 +129,27 @@
 
     <script type="text/javascript">
         var stepCount = 1;
+        var audioContext;   
+        var reverbNode;
+
+
+        function initAudioContext() {
+            audioContext = new AudioContext();
+            reverbNode = createReverbNode(audioContext);
+        }
+
+        function createReverbNode(audioContext) {
+            const convolver = audioContext.createConvolver();
+            // Ensure the path to the impulse response file is correct and accessible
+            fetch('static/audio/reverb.wav')
+                .then(response => response.arrayBuffer())
+                .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
+                .then(audioBuffer => {
+                    convolver.buffer = audioBuffer;
+                })
+                .catch(e => console.log('Error with decoding audio data', e));
+            return convolver;
+        }
 
         function addStep() {
             stepCount++;
@@ -92,11 +173,17 @@
         }
 
         function resetForm() {
-                window.location.reload();
-            }
-            document.addEventListener('DOMContentLoaded', function() {
+            window.location.reload();
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('processForm').addEventListener('submit', function(e) {
                 e.preventDefault(); // Prevents default form submission
+
+                // Initialize the audio context when the form is processed
+                if (!audioContext) {
+                    initAudioContext();
+                }
 
                 var formData = new FormData(this);
 
@@ -108,16 +195,38 @@
                 .then(data => {
                     if (data.images) {
                         data.images.forEach(encodedImg => {
-                            var img = new Image(200, 200);
+                            var img = new Image();
                             img.src = 'data:image/png;base64,' + encodedImg;
                             document.querySelector('.image-container').appendChild(img);
                         });
                     }
+
+                    // Handle MIDI notes for audio playback
+                    if (data.midiNotes) {
+                        let totalTime = 0;
+                        const pauseBetweenSublists = 500; // 0.5 second pause between sublists
+                        const pauseBetweenNotes = 250; // 0.1 second pause between notes
+
+                        data.midiNotes.forEach(sublist => {
+                            sublist.forEach(noteData => {
+                                if (noteData.note_on !== undefined) {
+                                    setTimeout(() => {
+                                        const frequency = midiNoteToFrequency(noteData.note_on);
+                                        if (frequency) {
+                                            playSquareWave(frequency);
+                                        }
+                                    }, totalTime);
+                                    totalTime += noteData.time + pauseBetweenNotes; // Add note duration and a pause
+                                }
+                            });
+                            totalTime += pauseBetweenSublists; // Add pause between sublists
+                        });
+                    }
                 })
                 .catch(error => console.error('Error:', error));
-
             });
         });
+
         function fetchLogs() {
             fetch('/get-logs')
                 .then(response => response.json())
@@ -127,7 +236,41 @@
                 .catch(error => console.error('Error fetching logs:', error));
         }
 
-        // Fetch logs every 5 seconds
+        function midiNoteToFrequency(note) {
+            if (!Number.isFinite(note)) {
+                console.error('Invalid note value:', note);
+                return null;
+            }
+            return Math.pow(2, (note - 69) / 12) * 440 + 25;
+        }
+
+        function playSquareWave(frequency, duration = 0.5) {
+            if (!Number.isFinite(frequency)) {
+                console.error('Invalid frequency value:', frequency);
+                return;
+            }
+
+            const oscillator = audioContext.createOscillator();
+            oscillator.type = 'square';
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
+
+            const gainNode = audioContext.createGain();
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime); // Start with silence
+            gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + 0.1); // Fade in
+            gainNode.gain.setValueAtTime(1, audioContext.currentTime + duration - 0.1); // Hold volume
+            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration); // Fade out
+
+            const panner = audioContext.createStereoPanner();
+            panner.pan.setValueAtTime(Math.sin(audioContext.currentTime), audioContext.currentTime); // Dynamic panning
+
+            oscillator.connect(gainNode);
+            gainNode.connect(reverbNode);
+            reverbNode.connect(audioContext.destination);
+
+            oscillator.start();
+            oscillator.stop(audioContext.currentTime + duration);
+        }
+
         setInterval(fetchLogs, 5000);
     </script>
 </body>
