@@ -30,10 +30,23 @@
         .form-group { 
             margin-bottom: 15px; 
         }
-        .image-container img {
-            width: 100%;
+        .image-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .step-container {
+            border: 1px solid #333;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .step-container h3 {
+            margin-top: 0;
+        }
+        .step-container img {
+            max-width: 100%;
             height: auto;
-            margin-top: 10px;
+            margin: 5px;
         }
         button {
             width: 100%;
@@ -58,7 +71,29 @@
             background-color: #2a2a2a; /* Dark input background */
             color: white; /* Light input text color */
         }
-
+        #logArea {
+            position: fixed;
+            left: -33%; /* Start off-screen */
+            width: 33%;
+            height: 100vh;
+            overflow: auto;
+            background-color: rgba(30, 30, 30, 0.9);
+            transition: left 0.3s ease-in-out;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        #logToggle {
+            position: fixed;
+            left: 10px;
+            bottom: 10px;
+            z-index: 1000;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
         /* Responsive Design */
         @media (max-width: 600px) {
             .header h1 {
@@ -81,7 +116,6 @@
             <div>
                 <label>Select musical scale:</label>
                 <select name="musical_scale">
-                    <!-- Options for musical scales -->
                     <option value="a_minor">a_minor</option>
                     <option value="a_major">a_major</option>
                     <option value="a_minor_h">a_minor_h</option>
@@ -93,7 +127,6 @@
             <div>
                 <p>Enter SMILES notation for each step, separate molecules with a space.
                     Alternately, smash 'random step' a bunch then hit process.
-                    Also, only one molecule per step is rendering atm, my bad
                 </p>
             </div>
 
@@ -117,13 +150,13 @@
         </div>
 
         <div>
-            <!-- Add vertical space -->
             <br><br>
             <a href="/smiles-guide">SMILES Notation Guide</a>
         </div>
     </div>
 
-    <div id="logArea" style="position: fixed; bottom: 0; width: 100%; height: 200px; overflow: scroll;">
+    <button id="logToggle">Show Logs</button>
+    <div id="logArea">
         <!-- Logs will be displayed here -->
     </div>
 
@@ -132,7 +165,6 @@
         var audioContext;   
         var reverbNode;
 
-
         function initAudioContext() {
             audioContext = new AudioContext();
             reverbNode = createReverbNode(audioContext);
@@ -140,7 +172,6 @@
 
         function createReverbNode(audioContext) {
             const convolver = audioContext.createConvolver();
-            // Ensure the path to the impulse response file is correct and accessible
             fetch('static/audio/reverb.wav')
                 .then(response => response.arrayBuffer())
                 .then(arrayBuffer => audioContext.decodeAudioData(arrayBuffer))
@@ -178,9 +209,8 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('processForm').addEventListener('submit', function(e) {
-                e.preventDefault(); // Prevents default form submission
+                e.preventDefault();
 
-                // Initialize the audio context when the form is processed
                 if (!audioContext) {
                     initAudioContext();
                 }
@@ -194,18 +224,28 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.images) {
-                        data.images.forEach(encodedImg => {
-                            var img = new Image();
-                            img.src = 'data:image/png;base64,' + encodedImg;
-                            document.querySelector('.image-container').appendChild(img);
+                        document.querySelector('.image-container').innerHTML = '';
+                        
+                        data.images.forEach((stepImages, stepIndex) => {
+                            const stepContainer = document.createElement('div');
+                            stepContainer.className = 'step-container';
+                            stepContainer.innerHTML = `<h3>Step ${stepIndex + 1}</h3>`;
+                            
+                            stepImages.forEach((encodedImg, moleculeIndex) => {
+                                var img = new Image();
+                                img.src = 'data:image/png;base64,' + encodedImg;
+                                img.alt = `Step ${stepIndex + 1}, Molecule ${moleculeIndex + 1}`;
+                                stepContainer.appendChild(img);
+                            });
+                            
+                            document.querySelector('.image-container').appendChild(stepContainer);
                         });
                     }
 
-                    // Handle MIDI notes for audio playback
                     if (data.midiNotes) {
                         let totalTime = 0;
-                        const pauseBetweenSublists = 500; // 0.5 second pause between sublists
-                        const pauseBetweenNotes = 250; // 0.1 second pause between notes
+                        const pauseBetweenSublists = 500;
+                        const pauseBetweenNotes = 250;
 
                         data.midiNotes.forEach(sublist => {
                             sublist.forEach(noteData => {
@@ -213,13 +253,13 @@
                                     setTimeout(() => {
                                         const frequency = midiNoteToFrequency(noteData.note_on);
                                         if (frequency) {
-                                            playSquareWave(frequency);
+                                            createSynthSound(frequency);
                                         }
                                     }, totalTime);
-                                    totalTime += noteData.time + pauseBetweenNotes; // Add note duration and a pause
+                                    totalTime += noteData.time + pauseBetweenNotes;
                                 }
                             });
-                            totalTime += pauseBetweenSublists; // Add pause between sublists
+                            totalTime += pauseBetweenSublists;
                         });
                     }
                 })
@@ -231,7 +271,7 @@
             fetch('/get-logs')
                 .then(response => response.json())
                 .then(data => {
-                    document.getElementById('logArea').innerText = data.logs;
+                    document.getElementById('logArea').innerHTML = '<pre>' + data.logs + '</pre>';
                 })
                 .catch(error => console.error('Error fetching logs:', error));
         }
@@ -244,32 +284,51 @@
             return Math.pow(2, (note - 69) / 12) * 440 + 25;
         }
 
-        function playSquareWave(frequency, duration = 0.5) {
+        function createSynthSound(frequency, duration = 0.5) {
             if (!Number.isFinite(frequency)) {
                 console.error('Invalid frequency value:', frequency);
                 return;
             }
 
             const oscillator = audioContext.createOscillator();
-            oscillator.type = 'square';
+            oscillator.type = 'sawtooth';
             oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
 
             const gainNode = audioContext.createGain();
-            gainNode.gain.setValueAtTime(0, audioContext.currentTime); // Start with silence
-            gainNode.gain.linearRampToValueAtTime(1, audioContext.currentTime + 0.1); // Fade in
-            gainNode.gain.setValueAtTime(1, audioContext.currentTime + duration - 0.1); // Hold volume
-            gainNode.gain.linearRampToValueAtTime(0, audioContext.currentTime + duration); // Fade out
+            gainNode.gain.setValueAtTime(0, audioContext.currentTime);
+            gainNode.gain.linearRampToValueAtTime(0.7, audioContext.currentTime + 0.01);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
+
+            const filter = audioContext.createBiquadFilter();
+            filter.type = 'lowpass';
+            filter.frequency.setValueAtTime(frequency * 2, audioContext.currentTime);
+            filter.frequency.exponentialRampToValueAtTime(frequency / 2, audioContext.currentTime + duration);
+            filter.Q.setValueAtTime(10, audioContext.currentTime);
 
             const panner = audioContext.createStereoPanner();
-            panner.pan.setValueAtTime(Math.sin(audioContext.currentTime), audioContext.currentTime); // Dynamic panning
+            panner.pan.setValueAtTime(Math.sin(audioContext.currentTime * 2) * 0.5, audioContext.currentTime);
 
-            oscillator.connect(gainNode);
-            gainNode.connect(reverbNode);
+            oscillator.connect(filter);
+            filter.connect(gainNode);
+            gainNode.connect(panner);
+            panner.connect(reverbNode);
             reverbNode.connect(audioContext.destination);
 
             oscillator.start();
             oscillator.stop(audioContext.currentTime + duration);
         }
+
+        document.getElementById('logToggle').addEventListener('click', function() {
+            var logArea = document.getElementById('logArea');
+            var logToggle = document.getElementById('logToggle');
+            if (logArea.style.left === '0px') {
+                logArea.style.left = '-33%';
+                logToggle.textContent = 'Show Logs';
+            } else {
+                logArea.style.left = '0px';
+                logToggle.textContent = 'Hide Logs';
+            }
+        });
 
         setInterval(fetchLogs, 5000);
     </script>
